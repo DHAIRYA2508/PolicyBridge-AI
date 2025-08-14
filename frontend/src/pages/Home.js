@@ -1,251 +1,275 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { TypeAnimation } from 'react-type-animation';
+import { Link } from 'react-router-dom';
+import { motion, useInView } from 'framer-motion';
 import { useSpring, animated } from '@react-spring/web';
-import { useInView } from 'react-intersection-observer';
+import { TypeAnimation } from 'react-type-animation';
 import { 
-  ArrowRight, 
-  Shield, 
-  Brain, 
-  Zap, 
-  Users, 
-  FileText, 
-  MessageSquare, 
-  BarChart3,
-  Star,
-  CheckCircle,
-  Play
-} from 'lucide-react';
+  DocumentTextIcon, 
+  ChatBubbleLeftRightIcon, 
+  ChartBarIcon, 
+  ShieldCheckIcon,
+  ArrowRightIcon,
+  StarIcon,
+  UserGroupIcon,
+  RocketLaunchIcon
+} from '@heroicons/react/24/outline';
 
 const Home = () => {
   const [ref, inView] = useInView({
-    triggerOnce: true,
-    threshold: 0.1
+    threshold: 0.1,
+    triggerOnce: true
   });
 
   const springProps = useSpring({
     opacity: inView ? 1 : 0,
     transform: inView ? 'translateY(0px)' : 'translateY(50px)',
-    config: { tension: 300, friction: 20 }
+    config: { tension: 300, friction: 30 }
   });
 
   const features = [
     {
-      icon: Brain,
-      title: 'AI-Powered Analysis',
-      description: 'Advanced machine learning algorithms analyze your policies with human-like understanding',
-      color: 'from-blue-500 to-purple-600'
+      icon: DocumentTextIcon,
+      title: "Smart Policy Analysis",
+      description: "AI-powered document processing with intelligent insights and recommendations",
+      color: "from-primary-500 to-primary-600"
     },
     {
-      icon: Shield,
-      title: 'Secure & Compliant',
-      description: 'Enterprise-grade security with SOC 2 compliance and end-to-end encryption',
-      color: 'from-green-500 to-emerald-600'
+      icon: ChatBubbleLeftRightIcon,
+      title: "Interactive Q&A",
+      description: "Ask questions about your policies and get instant, accurate answers",
+      color: "from-secondary-500 to-secondary-600"
     },
     {
-      icon: Zap,
-      title: 'Lightning Fast',
-      description: 'Process documents in seconds with our optimized AI infrastructure',
-      color: 'from-yellow-500 to-orange-600'
+      icon: ChartBarIcon,
+      title: "Policy Comparison",
+      description: "Compare multiple policies side-by-side with detailed analysis",
+      color: "from-accent1-500 to-accent1-600"
     },
     {
-      icon: Users,
-      title: 'Team Collaboration',
-      description: 'Real-time collaboration tools for teams to work together seamlessly',
-      color: 'from-pink-500 to-rose-600'
-    },
-    {
-      icon: FileText,
-      title: 'Smart Document Management',
-      description: 'Intelligent categorization and search across all your policy documents',
-      color: 'from-indigo-500 to-blue-600'
-    },
-    {
-      icon: MessageSquare,
-      title: 'AI Chat Assistant',
-      description: 'Get instant answers to complex policy questions with context-aware responses',
-      color: 'from-purple-500 to-pink-600'
+      icon: ShieldCheckIcon,
+      title: "Compliance Tracking",
+      description: "Monitor policy compliance and get automated alerts",
+      color: "from-accent2-500 to-accent2-600"
     }
   ];
 
   const testimonials = [
     {
-      name: 'Sarah Johnson',
-      role: 'Legal Counsel',
-      company: 'TechCorp Inc.',
-      content: 'PolicyBridge AI has revolutionized how we handle compliance. The AI insights are incredibly accurate.',
-      rating: 5,
-      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face'
+      name: "Sarah Johnson",
+      role: "Legal Director",
+      company: "TechCorp Inc.",
+      content: "PolicyBridge AI has revolutionized how we handle policy management. The AI insights are incredibly accurate.",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: 'Michael Chen',
-      role: 'HR Director',
-      company: 'Global Solutions',
-      content: 'The policy comparison feature saved us weeks of manual work. Highly recommended!',
-      rating: 5,
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face'
+      name: "Michael Chen",
+      role: "Compliance Officer",
+      company: "Global Finance",
+      content: "The policy comparison feature saves us hours of manual work. Highly recommended for any compliance team.",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
     },
     {
-      name: 'Emily Rodriguez',
-      role: 'Compliance Officer',
-      company: 'Financial Services Co.',
-      content: 'Outstanding AI capabilities. It understands complex legal language like a human expert.',
-      rating: 5,
-      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face'
+      name: "Emily Rodriguez",
+      role: "HR Manager",
+      company: "StartupXYZ",
+      content: "User-friendly interface with powerful AI capabilities. It's like having a legal expert on our team.",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face"
     }
   ];
 
   const stats = [
-    { number: '10K+', label: 'Policies Analyzed' },
-    { number: '99.9%', label: 'Accuracy Rate' },
-    { number: '50+', label: 'Enterprise Clients' },
-    { number: '24/7', label: 'AI Support' }
+    { number: "10K+", label: "Policies Analyzed", color: "text-primary-500" },
+    { number: "95%", label: "Accuracy Rate", color: "text-secondary-500" },
+    { number: "500+", label: "Happy Clients", color: "text-accent1-500" },
+    { number: "24/7", label: "AI Support", color: "text-accent2-500" }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent1-50">
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-accent">
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-20 pb-32">
-        <div className="absolute inset-0 bg-gradient-to-r from-secondary-500/10 to-accent1-500/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8">
+        <div className="absolute inset-0 bg-gradient-sunlit opacity-10"></div>
+        <div className="relative max-w-7xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="mb-8"
           >
-            <h1 className="text-5xl md:text-7xl font-bold text-text-primary mb-6">
-              <span className="bg-gradient-to-r from-secondary-600 to-accent1-600 bg-clip-text text-transparent">
-                Policy
-              </span>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
+              <span className="text-gradient-sunlit">PolicyBridge</span>
               <br />
+              <span className="text-gradient-ocean">AI</span>
+            </h1>
+            <div className="text-xl md:text-2xl lg:text-3xl text-text-secondary mb-8">
               <TypeAnimation
                 sequence={[
-                  'Bridge AI',
+                  'Transform your policy management with AI',
                   2000,
-                  'Intelligence',
+                  'Get instant insights from complex documents',
                   2000,
-                  'Innovation',
+                  'Ensure compliance with confidence',
                   2000,
-                  'Excellence',
-                  2000
+                  'Make informed decisions faster',
+                  2000,
                 ]}
                 wrapper="span"
                 speed={50}
-                className="bg-gradient-to-r from-accent1-600 to-secondary-600 bg-clip-text text-transparent"
                 repeat={Infinity}
+                className="text-gradient"
               />
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-text-secondary max-w-3xl mx-auto mb-8 leading-relaxed">
-              Transform your policy documents with cutting-edge AI. Get instant insights, 
-              intelligent analysis, and seamless compliance management.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-primary text-lg px-8 py-4 flex items-center gap-2 group"
-              >
-                Get Started Free
-                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-              
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="btn-outline text-lg px-8 py-4 flex items-center gap-2 group"
-              >
-                <Play size={20} className="group-hover:scale-110 transition-transform" />
-                Watch Demo
-              </motion.button>
             </div>
+            <p className="text-lg md:text-xl text-text-muted max-w-3xl mx-auto mb-12">
+              Leverage the power of artificial intelligence to analyze, understand, and manage your policy documents with unprecedented accuracy and speed.
+            </p>
           </motion.div>
 
-          {/* Floating Elements */}
           <motion.div
-            animate={{ 
-              y: [0, -20, 0],
-              rotate: [0, 5, 0]
-            }}
-            transition={{ 
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-accent1-400 to-accent1-600 rounded-full opacity-20 blur-xl"
-          />
-          <motion.div
-            animate={{ 
-              y: [0, 20, 0],
-              rotate: [0, -5, 0]
-            }}
-            transition={{ 
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: 2
-            }}
-            className="absolute top-40 right-20 w-32 h-32 bg-gradient-to-br from-secondary-400 to-secondary-600 rounded-full opacity-20 blur-xl"
-          />
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <Link
+              to="/signup"
+              className="btn-primary text-lg px-8 py-4 hover:shadow-sunlit animate-sunlit-glow"
+            >
+              Get Started Free
+              <ArrowRightIcon className="w-5 h-5 ml-2" />
+            </Link>
+            <Link
+              to="/login"
+              className="btn-outline text-lg px-8 py-4 border-2 border-secondary-500 text-secondary-500 hover:bg-secondary-500 hover:text-white"
+            >
+              Sign In
+            </Link>
+          </motion.div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
+      {/* Features Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-6">
+              Why Choose <span className="text-gradient-sunlit">PolicyBridge AI</span>?
+            </h2>
+            <p className="text-xl text-text-muted max-w-3xl mx-auto">
+              Our cutting-edge AI technology delivers unmatched accuracy and insights for policy analysis and management.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
               <motion.div
-                key={stat.label}
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="text-center"
+                className="group"
               >
-                <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-secondary-600 to-accent1-600 bg-clip-text text-transparent mb-2">
-                  {stat.number}
+                <div className="card card-hover p-8 text-center hover-sunlit">
+                  <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-r ${feature.color} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-4">{feature.title}</h3>
+                  <p className="text-text-muted leading-relaxed">{feature.description}</p>
                 </div>
-                <div className="text-text-secondary font-medium">{stat.label}</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 bg-gradient-to-br from-primary-50 to-accent1-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Stats Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-ocean">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div className={`text-4xl md:text-5xl lg:text-6xl font-bold ${stat.color} mb-2`}>
+                  {stat.number}
+                </div>
+                <div className="text-lg text-white/90 font-medium">{stat.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-cream">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-6">
-              Why Choose PolicyBridge AI?
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-6">
+              How It <span className="text-gradient-ocean">Works</span>
             </h2>
-            <p className="text-xl text-text-secondary max-w-3xl mx-auto">
-              Experience the future of policy management with our cutting-edge AI technology
+            <p className="text-xl text-text-muted max-w-3xl mx-auto">
+              Get started with PolicyBridge AI in three simple steps
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                step: "01",
+                title: "Upload Your Policy",
+                description: "Simply drag and drop your policy documents or use our secure file upload system",
+                icon: DocumentTextIcon,
+                color: "from-primary-500 to-accent3-500"
+              },
+              {
+                step: "02",
+                title: "AI Analysis",
+                description: "Our advanced AI processes your documents and extracts key information automatically",
+                icon: RocketLaunchIcon,
+                color: "from-secondary-500 to-accent2-500"
+              },
+              {
+                step: "03",
+                title: "Get Insights",
+                description: "Receive comprehensive analysis, recommendations, and answers to your questions",
+                icon: ChatBubbleLeftRightIcon,
+                color: "from-accent1-500 to-primary-500"
+              }
+            ].map((item, index) => (
               <motion.div
-                key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-white rounded-2xl p-8 shadow-soft hover:shadow-glow transition-all duration-300 group"
+                transition={{ duration: 0.6, delay: index * 0.2 }}
+                viewport={{ once: true }}
+                className="relative"
               >
-                <div className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300`}>
-                  <feature.icon size={32} className="text-white" />
+                <div className="card card-hover p-8 text-center hover-sunlit">
+                  <div className={`w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center text-white text-2xl font-bold`}>
+                    {item.step}
+                  </div>
+                  <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-r ${item.color} flex items-center justify-center`}>
+                    <item.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-text-primary mb-4">{item.title}</h3>
+                  <p className="text-text-muted leading-relaxed">{item.description}</p>
                 </div>
-                <h3 className="text-xl font-bold text-text-primary mb-4">{feature.title}</h3>
-                <p className="text-text-secondary leading-relaxed">{feature.description}</p>
               </motion.div>
             ))}
           </div>
@@ -253,47 +277,50 @@ const Home = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-text-primary mb-6">
-              Trusted by Industry Leaders
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-text-primary mb-6">
+              What Our <span className="text-gradient-sunlit">Clients Say</span>
             </h2>
-            <p className="text-xl text-text-secondary max-w-3xl mx-auto">
-              See what our clients say about PolicyBridge AI
+            <p className="text-xl text-text-muted max-w-3xl mx-auto">
+              Join thousands of satisfied users who trust PolicyBridge AI for their policy management needs
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <motion.div
-                key={testimonial.name}
-                initial={{ opacity: 0, y: 30 }}
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
-                whileHover={{ y: -5 }}
-                className="bg-gradient-to-br from-primary-50 to-white rounded-2xl p-8 shadow-soft hover:shadow-glow transition-all duration-300"
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                className="card card-hover p-8 hover-sunlit"
               >
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} size={20} className="text-yellow-400 fill-current" />
-                  ))}
+                <div className="flex items-center mb-6">
+                  <div className="flex -space-x-2">
+                    {[...Array(5)].map((_, i) => (
+                      <StarIcon key={i} className="w-5 h-5 text-primary-500 fill-current" />
+                    ))}
+                  </div>
                 </div>
-                <p className="text-text-secondary mb-6 italic">"{testimonial.content}"</p>
-                <div className="flex items-center gap-4">
-                  <img 
-                    src={testimonial.avatar} 
+                <p className="text-text-muted mb-6 leading-relaxed">"{testimonial.content}"</p>
+                <div className="flex items-center">
+                  <img
+                    src={testimonial.avatar}
                     alt={testimonial.name}
-                    className="w-12 h-12 rounded-full object-cover"
+                    className="w-12 h-12 rounded-full mr-4"
                   />
                   <div>
                     <div className="font-semibold text-text-primary">{testimonial.name}</div>
-                    <div className="text-sm text-text-secondary">{testimonial.role} at {testimonial.company}</div>
+                    <div className="text-sm text-text-muted">{testimonial.role} at {testimonial.company}</div>
                   </div>
                 </div>
               </motion.div>
@@ -303,35 +330,34 @@ const Home = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-secondary-600 to-accent1-600">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-sunlit">
+        <div className="max-w-4xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Ready to Transform Your Policy Management?
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
+              Ready to Transform Your <span className="text-gradient-cream">Policy Management</span>?
             </h2>
             <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-              Join thousands of organizations already using PolicyBridge AI to streamline their compliance processes
+              Join thousands of organizations already using PolicyBridge AI to streamline their policy workflows and ensure compliance.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.button
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-white text-secondary-600 font-semibold px-8 py-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-2"
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link
+                to="/signup"
+                className="bg-white text-secondary-500 hover:bg-gray-100 font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-sunlit"
               >
                 Start Free Trial
-                <ArrowRight size={20} />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="border-2 border-white text-white font-semibold px-8 py-4 rounded-xl hover:bg-white hover:text-secondary-600 transition-all duration-200"
+                <ArrowRightIcon className="w-5 h-5 ml-2 inline" />
+              </Link>
+              <Link
+                to="/login"
+                className="border-2 border-white text-white hover:bg-white hover:text-secondary-500 font-semibold py-4 px-8 rounded-xl transition-all duration-300 transform hover:scale-105"
               >
-                Schedule Demo
-              </motion.button>
+                Sign In
+              </Link>
             </div>
           </motion.div>
         </div>
