@@ -17,7 +17,7 @@ import {
   Play
 } from 'lucide-react';
 
-const Home = () => {
+const HomeEnhanced = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1
@@ -340,4 +340,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomeEnhanced;
