@@ -7,10 +7,10 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
 // Pages
-import Home from './pages/HomeEnhanced';
-import Login from './pages/LoginEnhanced';
+import Home from './pages/Home';
+import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Dashboard from './pages/DashboardEnhanced';
+import Dashboard from './pages/Dashboard';
 import UploadPolicy from './pages/UploadPolicy';
 import PolicyDetail from './pages/PolicyDetail';
 import ChatView from './pages/ChatView';
