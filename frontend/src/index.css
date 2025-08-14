@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-primary-50 text-text-primary;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-secondary-500 hover:bg-secondary-600 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-accent1-500 hover:bg-accent1-600 text-white font-medium py-3 px-6 rounded-lg shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-secondary-500 text-secondary-500 hover:bg-secondary-500 hover:text-white font-medium py-3 px-6 rounded-lg transition-all duration-200;
+  }
+  
+  .card {
+    @apply bg-white rounded-xl shadow-lg hover:shadow-xl p-6 border border-gray-100;
+  }
+  
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-secondary-500 focus:border-transparent transition-all duration-200;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, #F5F0E6 0%, #FAF3E0 50%, #F0E8D0 100%);
+  }
+  
+  .glass-effect {
+    @apply backdrop-blur-sm bg-white/80 border border-white/20;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-gradient-to-r from-secondary-500 to-accent1-500 bg-clip-text text-transparent;
+  }
+  
+  .shadow-soft {
+    box-shadow: 0 4px 20px rgba(75, 89, 69, 0.1);
+  }
+  
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(230, 181, 102, 0.3);
+  }
+}
