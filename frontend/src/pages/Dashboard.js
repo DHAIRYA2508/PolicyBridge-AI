@@ -1,21 +1,18 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useSpring, animated } from '@react-spring/web';
+
 import { 
   Search, 
-  Filter, 
   Plus, 
   Download, 
   MessageSquare, 
   Eye, 
   Trash2, 
-  MoreHorizontal,
+
   TrendingUp,
   FileText,
   Users,
   Clock,
-  Star,
-  Calendar,
   BarChart3,
   Upload,
   Settings
@@ -193,18 +190,7 @@ const DashboardEnhanced = () => {
     }
   };
 
-  const getFileTypeColor = (fileType) => {
-    switch (fileType) {
-      case 'PDF':
-        return 'bg-red-100 text-red-800';
-      case 'DOCX':
-        return 'bg-blue-100 text-blue-600';
-      case 'TXT':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent1-50">

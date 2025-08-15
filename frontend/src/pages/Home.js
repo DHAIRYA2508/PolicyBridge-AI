@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useInView } from 'framer-motion';
-import { useSpring, animated } from '@react-spring/web';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
 import { TypeAnimation } from 'react-type-animation';
 import { 
   DocumentTextIcon, 
@@ -10,21 +11,16 @@ import {
   ShieldCheckIcon,
   ArrowRightIcon,
   StarIcon,
-  UserGroupIcon,
   RocketLaunchIcon
 } from '@heroicons/react/24/outline';
 
 const Home = () => {
-  const [ref, inView] = useInView({
+  const [ref] = useInView({
     threshold: 0.1,
     triggerOnce: true
   });
 
-  const springProps = useSpring({
-    opacity: inView ? 1 : 0,
-    transform: inView ? 'translateY(0px)' : 'translateY(50px)',
-    config: { tension: 300, friction: 30 }
-  });
+
 
   const features = [
     {

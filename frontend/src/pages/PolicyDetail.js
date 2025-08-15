@@ -8,13 +8,10 @@ import {
   Share2, 
   MessageSquare, 
   BarChart3, 
-  Edit, 
-  Trash2,
   Calendar,
   Clock,
   User,
-  Eye,
-  Bookmark,
+
   MoreHorizontal
 } from 'lucide-react';
 

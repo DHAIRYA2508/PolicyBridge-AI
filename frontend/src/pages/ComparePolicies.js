@@ -111,19 +111,7 @@ const ComparePolicies = () => {
     setSelectedPolicies(selectedPolicies.filter(p => p.id !== policyId));
   };
 
-  const getComparisonData = () => {
-    if (comparisonType === 'coverage') {
-      return selectedPolicies.map(policy => ({
-        name: policy.name,
-        data: policy.coverage
-      }));
-    } else {
-      return selectedPolicies.map(policy => ({
-        name: policy.name,
-        data: policy.costs
-      }));
-    }
-  };
+
 
   const getComparisonMetrics = () => {
     if (comparisonType === 'coverage') {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Signup = () => {
@@ -338,13 +338,13 @@ const Signup = () => {
               <div className="ml-3 text-sm">
                 <label htmlFor="terms" className="text-text-secondary">
                   I agree to the{' '}
-                  <a href="#" className="font-medium text-secondary-500 hover:text-secondary-600 transition-colors duration-200">
+                  <button className="font-medium text-secondary-500 hover:text-secondary-600 transition-colors duration-200">
                     Terms of Service
-                  </a>{' '}
+                  </button>{' '}
                   and{' '}
-                  <a href="#" className="font-medium text-secondary-500 hover:text-secondary-600 transition-colors duration-200">
+                  <button className="font-medium text-secondary-500 hover:text-secondary-600 transition-colors duration-200">
                     Privacy Policy
-                  </a>
+                  </button>
                 </label>
               </div>
             </div>

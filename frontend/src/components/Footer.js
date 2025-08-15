@@ -43,10 +43,10 @@ const Footer = () => {
           >
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-secondary-100 hover:text-white transition-colors duration-200">About</a></li>
-              <li><a href="#" className="text-secondary-100 hover:text-white transition-colors duration-200">Features</a></li>
-              <li><a href="#" className="text-secondary-100 hover:text-white transition-colors duration-200">Pricing</a></li>
-              <li><a href="#" className="text-secondary-100 hover:text-white transition-colors duration-200">Support</a></li>
+              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">About</button></li>
+              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">Features</button></li>
+              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">Pricing</button></li>
+              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">Support</button></li>
             </ul>
           </motion.div>
 
@@ -89,12 +89,12 @@ const Footer = () => {
             © {currentYear} PolicyBridge AI. All rights reserved.
           </p>
           <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <a href="#" className="text-secondary-100 hover:text-white text-sm transition-colors duration-200">
+            <button className="text-secondary-100 hover:text-white text-sm transition-colors duration-200">
               Privacy Policy
-            </a>
-            <a href="#" className="text-secondary-100 hover:text-white text-sm transition-colors duration-200">
+            </button>
+            <button className="text-secondary-100 hover:text-white text-sm transition-colors duration-200">
               Terms of Service
-            </a>
+            </button>
           </div>
         </motion.div>
 

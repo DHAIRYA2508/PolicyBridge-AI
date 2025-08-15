@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   MessageSquare, 
   Search, 
@@ -8,12 +8,11 @@ import {
   Clock, 
   FileText, 
   User, 
-  Bot,
   ArrowRight,
   Download,
   Share2,
   Bookmark,
-  MoreHorizontal,
+
   Trash2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

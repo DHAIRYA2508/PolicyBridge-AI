@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 
 // Components
 import Navbar from './components/Navbar';
@@ -26,7 +26,7 @@ function App() {
     <AuthProvider>
       <ToastProvider>
         <Router>
-          <div className="min-h-screen bg-primary-50">
+          <div className="min-h-screen bg-bg-primary">
             <Navbar />
             <AnimatePresence mode="wait">
               <Routes>
