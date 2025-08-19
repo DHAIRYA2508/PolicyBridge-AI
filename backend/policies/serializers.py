@@ -1,80 +1,128 @@
+"""
+Policy serializers for PolicyBridge AI
+"""
 from rest_framework import serializers
-from .models import Policy, PolicySection, PolicyComparison, PolicyTag
+from .models import Policy, PolicyExtraction
 
 
-class PolicyTagSerializer(serializers.ModelSerializer):
-    """Serializer for policy tags"""
-    
+class PolicyExtractionSerializer(serializers.ModelSerializer):
+    """
+    Serializer for policy extraction data
+    """
     class Meta:
-        model = PolicyTag
-        fields = ('id', 'name', 'description', 'color')
-
-
-class PolicySectionSerializer(serializers.ModelSerializer):
-    """Serializer for policy sections"""
-    
-    class Meta:
-        model = PolicySection
-        fields = ('id', 'section_title', 'section_content', 'section_number', 'page_number', 'summary', 'keywords')
+        model = PolicyExtraction
+        fields = ['extracted_text', 'text_length', 'extraction_date', 'extraction_status', 'error_message']
+        read_only_fields = ['text_length', 'extraction_date']
 
 
 class PolicySerializer(serializers.ModelSerializer):
-    """Serializer for policies"""
-    
-    sections = PolicySectionSerializer(many=True, read_only=True)
-    tags = PolicyTagSerializer(many=True, read_only=True)
-    user = serializers.StringRelatedField()
+    """
+    Serializer for policy documents
+    """
+    user = serializers.ReadOnlyField(source='user.email')
+    extraction = PolicyExtractionSerializer(read_only=True)
+    file_name = serializers.SerializerMethodField()
+    file_extension = serializers.SerializerMethodField()
+    formatted_file_size = serializers.SerializerMethodField()
     
     class Meta:
         model = Policy
-        fields = (
-            'id', 'title', 'description', 'file_name', 'file_size', 'file_type',
-            'extracted_text', 'text_length', 'upload_date', 'last_modified',
-            'is_processed', 'status', 'category', 'tags', 'sections', 'user'
-        )
-        read_only_fields = ('id', 'upload_date', 'last_modified', 'text_length')
+        fields = [
+            'id', 'user', 'name', 'provider', 'policy_type', 'policy_number',
+            'coverage_amount', 'premium_amount', 'start_date', 'end_date',
+            'document', 'file_size', 'file_type', 'description', 'tags',
+            'is_active', 'created_at', 'updated_at', 'extraction',
+            'file_name', 'file_extension', 'formatted_file_size'
+        ]
+        read_only_fields = ['id', 'user', 'file_size', 'file_type', 'created_at', 'updated_at']
+    
+    def get_file_name(self, obj):
+        return obj.get_file_name()
+    
+    def get_file_extension(self, obj):
+        return obj.get_file_extension()
+    
+    def get_formatted_file_size(self, obj):
+        return obj.get_formatted_file_size()
 
 
 class PolicyCreateSerializer(serializers.ModelSerializer):
-    """Serializer for creating policies"""
+    """
+    Serializer for creating new policies
+    """
+    class Meta:
+        model = Policy
+        fields = [
+            'name', 'provider', 'policy_type', 'policy_number',
+            'coverage_amount', 'premium_amount', 'start_date', 'end_date',
+            'document', 'description', 'tags'
+        ]
+
+    def validate(self, data):
+        request = self.context.get('request')
+        user = request.user if request else None
+        document = data.get('document')
+        if user and document:
+            # Check for duplicate file name for this user
+            existing = Policy.objects.filter(user=user, document__icontains=document.name)
+            if existing.exists():
+                raise serializers.ValidationError({
+                    'document': 'You have already uploaded a file with this name.'
+                })
+        return data
+    
+    def validate_document(self, value):
+        """Validate document file"""
+        if value.size > 10 * 1024 * 1024:  # 10MB limit
+            raise serializers.ValidationError("File size must be under 10MB")
+        return value
+
+
+class PolicyUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating policies
+    """
+    class Meta:
+        model = Policy
+        fields = [
+            'name', 'provider', 'policy_type', 'policy_number',
+            'coverage_amount', 'premium_amount', 'start_date', 'end_date',
+            'description', 'tags', 'is_active'
+        ]
+
+
+class PolicyListSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing policies (minimal data)
+    """
+    user = serializers.ReadOnlyField(source='user.email')
+    file_name = serializers.SerializerMethodField()
+    formatted_file_size = serializers.SerializerMethodField()
     
     class Meta:
         model = Policy
-        fields = ('title', 'description', 'file', 'category', 'tags')
-
-
-class PolicyComparisonSerializer(serializers.ModelSerializer):
-    """Serializer for policy comparisons"""
+        fields = [
+            'id', 'user', 'name', 'provider', 'policy_type', 'policy_number',
+            'coverage_amount', 'premium_amount', 'start_date', 'end_date',
+            'file_size', 'file_type', 'is_active', 'created_at', 'file_name', 'formatted_file_size'
+        ]
     
-    policies = PolicySerializer(many=True, read_only=True)
+    def get_file_name(self, obj):
+        return obj.get_file_name()
     
-    class Meta:
-        model = PolicyComparison
-        fields = (
-            'id', 'policies', 'comparison_type', 'similarities', 'differences',
-            'recommendation', 'comparison_score', 'created_at'
-        )
-        read_only_fields = ('id', 'created_at')
+    def get_formatted_file_size(self, obj):
+        return obj.get_formatted_file_size()
 
 
-class PolicyComparisonCreateSerializer(serializers.Serializer):
-    """Serializer for creating policy comparisons"""
-    
-    policy_ids = serializers.ListField(
-        child=serializers.UUIDField(),
-        min_length=2,
-        max_length=5
-    )
-    comparison_type = serializers.ChoiceField(choices=[
-        ('coverage', 'Coverage Comparison'),
-        ('costs', 'Costs Comparison'),
-        ('features', 'Features Comparison'),
-        ('general', 'General Comparison'),
-    ])
-
-
-class PolicyChatSerializer(serializers.Serializer):
-    """Serializer for policy chat"""
-    
-    question = serializers.CharField(max_length=1000)
-    policy_id = serializers.UUIDField()
+class PolicySearchSerializer(serializers.Serializer):
+    """
+    Serializer for policy search
+    """
+    query = serializers.CharField(max_length=255, required=False)
+    policy_type = serializers.ChoiceField(choices=Policy.POLICY_TYPES, required=False)
+    provider = serializers.CharField(max_length=255, required=False)
+    start_date = serializers.DateField(required=False)
+    end_date = serializers.DateField(required=False)
+    min_coverage = serializers.DecimalField(max_digits=15, decimal_places=2, required=False)
+    max_coverage = serializers.DecimalField(max_digits=15, decimal_places=2, required=False)
+    tags = serializers.ListField(child=serializers.CharField(), required=False)

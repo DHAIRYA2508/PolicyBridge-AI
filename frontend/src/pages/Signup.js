@@ -17,7 +17,7 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [signupError, setSignupError] = useState('');
   
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -75,19 +75,24 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const mockUser = {
-        id: '1',
-        name: formData.name,
+      const result = await register({
+        username: formData.email.split('@')[0], // Generate username from email
         email: formData.email,
-        role: 'user'
-      };
-      const mockToken = 'mock-jwt-token';
+        password: formData.password,
+        password_confirm: formData.confirmPassword,
+        first_name: formData.name.split(' ')[0] || formData.name,
+        last_name: formData.name.split(' ').slice(1).join(' ') || ''
+      });
       
-      login(mockUser, mockToken);
-      navigate('/dashboard');
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
+        // The error is already handled by the AuthContext and shown via toast
+        // We can also show it in the form for better user experience
+        setSignupError(result.error || 'Failed to create account. Please try again.');
+      }
     } catch (error) {
+      console.error('💥 Signup error:', error);
       setSignupError('Failed to create account. Please try again.');
     } finally {
       setIsLoading(false);
@@ -113,7 +118,7 @@ const Signup = () => {
   const passwordStrength = getPasswordStrength();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-accent2-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-accent to-bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -121,12 +126,12 @@ const Signup = () => {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <Link to="/" className="inline-flex items-center text-text-secondary hover:text-secondary-500 mb-6 transition-colors duration-200">
+          <Link to="/" className="inline-flex items-center text-text-secondary hover:text-primary-500 mb-6 transition-colors duration-200">
             <ArrowLeft size={20} className="mr-2" />
             Back to Home
           </Link>
           
-          <div className="w-16 h-16 bg-gradient-to-br from-secondary-500 to-accent1-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-accent3-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-glow">
             <span className="text-white font-bold text-xl">PB</span>
           </div>
           
@@ -142,7 +147,7 @@ const Signup = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white rounded-2xl shadow-soft p-8"
+          className="bg-white/90 backdrop-blur-md rounded-2xl shadow-soft p-8 border border-primary-200"
         >
           {signupError && (
             <motion.div
@@ -332,17 +337,17 @@ const Signup = () => {
                   name="terms"
                   type="checkbox"
                   required
-                  className="h-4 w-4 text-secondary-500 focus:ring-secondary-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-primary-500 focus:ring-primary-500 border-gray-300 rounded"
                 />
               </div>
               <div className="ml-3 text-sm">
                 <label htmlFor="terms" className="text-text-secondary">
                   I agree to the{' '}
-                  <button className="font-medium text-secondary-500 hover:text-secondary-600 transition-colors duration-200">
+                  <button className="font-medium text-primary-500 hover:text-primary-600 transition-colors duration-200">
                     Terms of Service
                   </button>{' '}
                   and{' '}
-                  <button className="font-medium text-secondary-500 hover:text-secondary-600 transition-colors duration-200">
+                  <button className="font-medium text-primary-500 hover:text-primary-600 transition-colors duration-200">
                     Privacy Policy
                   </button>
                 </label>
@@ -415,7 +420,7 @@ const Signup = () => {
         >
           <p className="text-text-secondary">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-secondary-500 hover:text-secondary-600 transition-colors duration-200">
+            <Link to="/login" className="font-medium text-primary-500 hover:text-primary-600 transition-colors duration-200">
               Sign in
             </Link>
           </p>

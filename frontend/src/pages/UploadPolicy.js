@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { policyAPI } from '../services/api';
+import toast from 'react-hot-toast';
 import { 
   Upload, 
   FileText, 
@@ -99,24 +101,6 @@ const UploadPolicy = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const simulateUpload = async (fileId) => {
-    const file = files.find(f => f.id === fileId);
-    if (!file) return;
-
-    setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
-    
-    // Simulate upload progress
-    for (let i = 0; i <= 100; i += 10) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-      setUploadProgress(prev => ({ ...prev, [fileId]: i }));
-    }
-
-    // Simulate successful upload
-    setFiles(prev => prev.map(f => 
-      f.id === fileId ? { ...f, status: 'completed' } : f
-    ));
-  };
-
   const handleUpload = async () => {
     if (files.length === 0) return;
 
@@ -126,12 +110,41 @@ const UploadPolicy = () => {
     for (const file of files) {
       if (file.status === 'pending') {
         try {
-          await simulateUpload(file.id);
+          setUploadProgress(prev => ({ ...prev, [file.id]: 0 }));
+          
+          // Create policy data
+          const policyData = {
+            name: file.name.replace(/\.[^/.]+$/, ''), // Remove file extension
+            document: file.file,
+            policy_type: 'other', // Default type, can be updated later
+            provider: 'Unknown', // Default provider, can be updated later
+            description: `Uploaded document: ${file.name}`,
+            is_active: true
+          };
+          
+          // Upload to backend
+          const response = await policyAPI.createPolicy(policyData);
+          
+          if (response.data) {
+            // Update file status
+            setFiles(prev => prev.map(f => 
+              f.id === file.id ? { ...f, status: 'completed' } : f
+            ));
+            
+            setUploadProgress(prev => ({ ...prev, [file.id]: 100 }));
+            toast.success(`${file.name} uploaded successfully!`);
+          }
+          
         } catch (error) {
-          setUploadErrors(prev => ({ ...prev, [file.id]: 'Upload failed' }));
+          console.error('Upload error:', error);
+          setUploadErrors(prev => ({ 
+            ...prev, 
+            [file.id]: error.response?.data?.detail || 'Upload failed' 
+          }));
           setFiles(prev => prev.map(f => 
             f.id === file.id ? { ...f, status: 'error' } : f
           ));
+          toast.error(`Failed to upload ${file.name}`);
         }
       }
     }

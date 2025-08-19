@@ -1,41 +1,33 @@
+"""
+Admin configuration for users app
+"""
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, OTP, UserProfile
+from django.contrib.auth.admin import UserAdmin
+from .models import User
 
 
 @admin.register(User)
-class UserAdmin(BaseUserAdmin):
-    list_display = ('email', 'username', 'first_name', 'last_name', 'is_verified', 'is_active', 'created_at')
-    list_filter = ('is_verified', 'is_active', 'is_staff', 'created_at')
+class CustomUserAdmin(UserAdmin):
+    """
+    Custom admin configuration for User model
+    """
+    list_display = ('email', 'username', 'first_name', 'last_name', 'is_active', 'date_joined')
+    list_filter = ('is_active', 'is_staff', 'is_superuser', 'date_joined')
     search_fields = ('email', 'username', 'first_name', 'last_name')
-    ordering = ('-created_at',)
+    ordering = ('-date_joined',)
     
-    fieldsets = BaseUserAdmin.fieldsets + (
-        ('PolicyBridge Info', {
-            'fields': ('is_verified', 'phone_number', 'company', 'job_title', 'profile_picture')
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        ('Personal info', {'fields': ('username', 'first_name', 'last_name')}),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     
-    add_fieldsets = BaseUserAdmin.add_fieldsets + (
-        ('PolicyBridge Info', {
-            'fields': ('email', 'is_verified', 'phone_number', 'company', 'job_title')
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'username', 'password1', 'password2'),
         }),
     )
-
-
-@admin.register(OTP)
-class OTPAdmin(admin.ModelAdmin):
-    list_display = ('user', 'otp_type', 'otp_code', 'is_used', 'expires_at', 'created_at')
-    list_filter = ('otp_type', 'is_used', 'created_at')
-    search_fields = ('user__email', 'otp_code')
-    ordering = ('-created_at',)
-    readonly_fields = ('created_at',)
-
-
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'location', 'theme_preference', 'created_at')
-    list_filter = ('theme_preference', 'created_at')
-    search_fields = ('user__email', 'bio', 'location')
-    ordering = ('-created_at',)
-    readonly_fields = ('created_at', 'updated_at')

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff, Mail, Lock, Github, Chrome, MessageSquare } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
 const LoginEnhanced = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -58,19 +60,24 @@ const LoginEnhanced = () => {
     setIsLoading(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Mock successful login
-      localStorage.setItem('user', JSON.stringify({
-        email: formData.email,
-        name: 'Demo User'
-      }));
-      
-      toast.success('Welcome back! Login successful.');
-      navigate('/dashboard');
+      console.log('🔐 Attempting login with:', formData);
+      const result = await login(formData);
+      console.log('🔐 Login result:', result);
+      if (result.success) {
+        console.log('✅ Login successful, navigating to dashboard');
+        navigate('/dashboard');
+      } else {
+        console.log('❌ Login failed:', result.error);
+        // The error is already handled by the AuthContext and shown via toast
+        // Clear any form-level errors since the toast shows the specific error
+        setErrors({});
+      }
     } catch (error) {
-      toast.error('Login failed. Please try again.');
+      console.error('💥 Login error:', error);
+      console.error('💥 Error response:', error.response);
+      console.error('💥 Error status:', error.response?.status);
+      console.error('💥 Error data:', error.response?.data);
+      // Error is handled by AuthContext and shown via toast
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +94,7 @@ const LoginEnhanced = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent1-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-bg-primary via-bg-accent to-bg-secondary flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <motion.div
@@ -100,7 +107,7 @@ const LoginEnhanced = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mx-auto w-20 h-20 bg-gradient-to-br from-secondary-500 to-accent1-600 rounded-2xl flex items-center justify-center mb-6"
+            className="mx-auto w-20 h-20 bg-gradient-to-br from-primary-500 to-accent3-500 rounded-2xl flex items-center justify-center mb-6 shadow-glow"
           >
             <MessageSquare size={40} className="text-white" />
           </motion.div>
@@ -136,7 +143,7 @@ const LoginEnhanced = () => {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-secondary-500 focus:border-transparent transition-all duration-200 ${
+                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
                   errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-200'
                 }`}
                 placeholder="Enter your email"
@@ -168,7 +175,7 @@ const LoginEnhanced = () => {
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-secondary-500 focus:border-transparent transition-all duration-200 ${
+                className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 ${
                   errors.password ? 'border-red-300 focus:ring-red-500' : 'border-gray-200'
                 }`}
                 placeholder="Enter your password"
@@ -199,19 +206,19 @@ const LoginEnhanced = () => {
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-secondary-600 focus:ring-secondary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
               <label htmlFor="remember-me" className="ml-2 block text-sm text-text-secondary">
                 Remember me
               </label>
             </div>
             <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-secondary-600 hover:text-secondary-500 transition-colors duration-200"
+              <button
+                className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200"
+                onClick={() => toast('Password reset feature coming soon!', { icon: 'ℹ️' })}
               >
                 Forgot password?
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -300,7 +307,7 @@ const LoginEnhanced = () => {
             Don't have an account?{' '}
             <Link
               to="/signup"
-              className="font-medium text-secondary-600 hover:text-secondary-500 transition-colors duration-200"
+              className="font-medium text-primary-600 hover:text-primary-500 transition-colors duration-200"
             >
               Sign up for free
             </Link>

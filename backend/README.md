@@ -1,171 +1,279 @@
-# PolicyBridge AI - Backend
+# 🚀 PolicyBridge AI - Django Backend
 
-This is the Django backend for PolicyBridge AI, a comprehensive policy document analysis platform.
+A comprehensive Django backend for PolicyBridge AI, providing AI-powered insurance policy analysis and management.
 
-## Features
+## ✨ Features
 
-- **User Authentication**: JWT-based authentication with OTP verification
-- **Policy Management**: Upload, store, and manage policy documents
-- **AI Chat**: Interactive conversations with policies using AI
-- **Policy Comparison**: Compare multiple policies side-by-side
-- **File Processing**: Support for PDF, DOCX, and TXT files
-- **RESTful API**: Complete REST API with Django REST Framework
+### 🔐 **User Authentication**
+- JWT-based authentication system
+- User registration and login
+- Profile management
+- Secure password handling
 
-## Tech Stack
+### 📄 **Policy Management**
+- Upload insurance policy documents (PDF, DOCX, TXT)
+- Store policy metadata and files
+- Advanced search and filtering
+- Policy statistics and analytics
 
-- **Framework**: Django 4.2.7
-- **API**: Django REST Framework
-- **Authentication**: SimpleJWT
-- **Database**: SQLite (development) / PostgreSQL (production)
-- **Task Queue**: Celery + Redis
-- **File Storage**: Local storage with WhiteNoise
-- **AI Integration**: OpenAI API
+### 🤖 **AI Integration**
+- Google Gemini integration for policy analysis
+- Natural language queries about policies
+- Policy comparison and recommendations
+- Conversation history and chat interface
+- Usage tracking and cost monitoring
 
-## Project Structure
+## 🛠 Tech Stack
+
+- **Framework**: Django 4.2.7 + Django REST Framework
+- **Authentication**: JWT with djangorestframework-simplejwt
+- **Database**: SQLite (configurable for production)
+- **AI**: OpenAI API integration
+- **File Handling**: Django file uploads with validation
+- **CORS**: django-cors-headers for frontend integration
+- **Filtering**: django-filter for advanced queries
+
+## 📁 Project Structure
 
 ```
-backend/
-├── policybridge/          # Main project settings
-├── users/                 # User authentication & management
-├── policies/              # Policy document management
-├── conversations/         # AI chat functionality
-├── templates/             # Email templates
-├── static/                # Static files
-├── media/                 # Uploaded files
-├── logs/                  # Application logs
-└── requirements.txt       # Python dependencies
+policybridge_backend/
+├── policybridge_backend/     # Main project settings
+│   ├── __init__.py
+│   ├── settings.py          # Django configuration
+│   ├── urls.py              # Main URL routing
+│   ├── wsgi.py              # WSGI configuration
+│   └── asgi.py              # ASGI configuration
+├── users/                    # User authentication app
+│   ├── models.py            # Custom User model
+│   ├── serializers.py       # API serializers
+│   ├── views.py             # Authentication views
+│   ├── urls.py              # User URL patterns
+│   └── admin.py             # Admin configuration
+├── policies/                 # Policy management app
+│   ├── models.py            # Policy and extraction models
+│   ├── serializers.py       # Policy serializers
+│   ├── views.py             # Policy CRUD views
+│   ├── urls.py              # Policy URL patterns
+│   └── admin.py             # Admin configuration
+├── ai/                      # AI integration app
+│   ├── models.py            # AI models (conversations, analyses)
+│   ├── serializers.py       # AI serializers
+│   ├── services.py          # OpenAI service layer
+│   ├── views.py             # AI endpoint views
+│   ├── urls.py              # AI URL patterns
+│   └── admin.py             # Admin configuration
+├── manage.py                 # Django management script
+├── requirements.txt          # Python dependencies
+├── env_example.txt          # Environment variables template
+└── README.md                # This file
 ```
 
-## API Endpoints
+## 🚀 Quick Start
 
-### Authentication (`/api/auth/`)
-- `POST /register/` - User registration
-- `POST /login/` - User login
-- `POST /verify-otp/` - OTP verification
-- `POST /logout/` - User logout
-- `GET /profile/` - User profile
-- `POST /change-password/` - Change password
-- `POST /forgot-password/` - Request password reset
+### Prerequisites
+- Python 3.8+
+- pip (Python package manager)
 
-### Policies (`/api/policies/`)
-- `GET /` - List user policies
-- `POST /` - Upload new policy
-- `GET /<uuid>/` - Get policy details
-- `PUT /<uuid>/` - Update policy
-- `DELETE /<uuid>/` - Delete policy
-- `POST /compare/` - Compare policies
-- `POST /chat/` - AI chat with policy
-- `GET /statistics/` - Policy statistics
+### Installation
 
-### Conversations (`/api/conversations/`)
-- `GET /` - List conversations
-- `POST /` - Create conversation
-- `GET /<uuid>/` - Get conversation details
-- `GET /<uuid>/messages/` - Get conversation messages
-- `POST /<uuid>/messages/` - Send message
-- `GET /policy/<uuid>/` - Get policy conversations
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd policybridge_backend
+   ```
 
-## Setup Instructions
+2. **Create virtual environment**
+   ```bash
+   python -m venv venv
+   
+   # On Windows
+   venv\Scripts\activate
+   
+   # On macOS/Linux
+   source venv/bin/activate
+   ```
 
-### 1. Environment Setup
-```bash
-# Create virtual environment
-python -m venv venv
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Activate virtual environment
-# Windows:
-venv\Scripts\Activate.ps1
-# Linux/Mac:
-source venv/bin/activate
+4. **Set up environment variables**
+   ```bash
+   # Copy the example file
+   cp env_example.txt .env
+   
+   # Edit .env with your configuration
+   # Especially set your OpenAI API key
+   ```
 
-# Install dependencies
-pip install -r requirements.txt
-```
+5. **Run migrations**
+   ```bash
+   python manage.py makemigrations
+   python manage.py migrate
+   ```
 
-### 2. Environment Variables
-Copy `env.example` to `.env` and configure:
-```bash
-SECRET_KEY=your-secret-key-here
-DEBUG=True
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-OPENAI_API_KEY=your-openai-api-key
-```
+6. **Create superuser (optional)**
+   ```bash
+   python manage.py createsuperuser
+   ```
 
-### 3. Database Setup
-```bash
-# Create migrations
-python manage.py makemigrations
+7. **Run the development server**
+   ```bash
+   python manage.py runserver
+   ```
 
-# Apply migrations
-python manage.py migrate
+The backend will be available at `http://localhost:8000/`
 
-# Create superuser
-python manage.py createsuperuser
-```
-
-### 4. Run Development Server
-```bash
-python manage.py runserver
-```
-
-### 5. Run Celery Worker (Optional)
-```bash
-# Start Redis server first
-celery -A policybridge worker --loglevel=info
-
-# Start Celery Beat for scheduled tasks
-celery -A policybridge beat --loglevel=info
-```
-
-## Development
-
-### Running Tests
-```bash
-python manage.py test
-```
-
-### Code Quality
-```bash
-# Check for code style issues
-python -m flake8
-
-# Run security checks
-python manage.py check --deploy
-```
-
-### Database Management
-```bash
-# Reset database
-python manage.py flush
-
-# Create backup
-python manage.py dumpdata > backup.json
-
-# Load backup
-python manage.py loaddata backup.json
-```
-
-## Deployment
-
-### Production Settings
-- Set `DEBUG=False`
-- Configure production database (PostgreSQL)
-- Set up proper `SECRET_KEY`
-- Configure email settings
-- Set up Redis for Celery
-- Configure static file serving
+## 🔧 Configuration
 
 ### Environment Variables
-```bash
-SECRET_KEY=production-secret-key
-DEBUG=False
-ALLOWED_HOSTS=yourdomain.com
-DATABASE_URL=postgresql://user:pass@host:port/db
-CELERY_BROKER_URL=redis://localhost:6379/0
+
+Create a `.env` file in the backend directory with the following variables:
+
+```env
+# Django Configuration
+SECRET_KEY=your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# OpenAI Configuration
+OPENAI_API_KEY=your-openai-api-key-here
+OPENAI_MODEL=gpt-4o-mini
+
+# JWT Configuration
+JWT_SECRET_KEY=your-jwt-secret-key-here
+JWT_ACCESS_TOKEN_EXPIRES=3600
+JWT_REFRESH_TOKEN_EXPIRES=604800
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ```
 
-## Contributing
+### OpenAI API Key
+
+1. Go to [OpenAI Platform](https://platform.openai.com/)
+2. Create an account or sign in
+3. Navigate to API Keys section
+4. Create a new API key
+5. Add the key to your `.env` file
+
+## 📚 API Endpoints
+
+### Authentication
+- `POST /api/auth/register/` - User registration
+- `POST /api/auth/login/` - User login
+- `POST /api/auth/logout/` - User logout
+- `GET /api/users/profile/` - Get user profile
+- `PUT /api/users/profile/` - Update user profile
+
+### Policy Management
+- `GET /api/policies/` - List user policies
+- `POST /api/policies/` - Upload new policy
+- `GET /api/policies/<id>/` - Get policy details
+- `PUT /api/policies/<id>/` - Update policy
+- `DELETE /api/policies/<id>/` - Delete policy
+- `GET /api/policies/search/` - Search policies
+- `GET /api/policies/stats/` - Get policy statistics
+
+### AI Integration
+- `POST /api/ai/query/` - Ask AI about a policy
+- `POST /api/ai/compare/` - Compare two policies
+- `GET /api/ai/conversations/` - List conversations
+- `POST /api/ai/conversations/` - Create conversation
+- `GET /api/ai/conversations/<id>/` - Get conversation
+- `POST /api/ai/conversations/<id>/message/` - Send message
+- `GET /api/ai/usage-stats/` - Get usage statistics
+
+## 🔒 Security Features
+
+- JWT token-based authentication
+- Password hashing with Django's built-in validators
+- CORS configuration for frontend security
+- File upload validation and size limits
+- User-specific data isolation
+- Admin interface protection
+
+## 📊 Database Models
+
+### Users
+- **User**: Custom user model with email authentication
+- **Fields**: email, username, first_name, last_name, date_joined
+
+### Policies
+- **Policy**: Insurance policy documents and metadata
+- **PolicyExtraction**: Extracted text from policy documents
+- **Fields**: name, provider, type, coverage, premium, document, tags
+
+### AI Integration
+- **Conversation**: Chat conversations between users and AI
+- **Message**: Individual messages in conversations
+- **PolicyAnalysis**: AI-generated policy analysis results
+- **PolicyComparison**: AI-generated policy comparison results
+- **AIUsageLog**: API usage tracking and cost monitoring
+
+## 🚀 Production Deployment
+
+### Database
+- Replace SQLite with PostgreSQL or MySQL
+- Update `DATABASE_URL` in environment variables
+- Run migrations on production database
+
+### Static Files
+- Configure `STATIC_ROOT` and `MEDIA_ROOT`
+- Use a CDN or web server for file serving
+- Set `DEBUG=False` in production
+
+### Security
+- Generate strong `SECRET_KEY`
+- Use HTTPS in production
+- Configure proper `ALLOWED_HOSTS`
+- Set up proper logging
+
+### AI Service
+- Monitor OpenAI API usage and costs
+- Implement rate limiting if needed
+- Set up error monitoring and alerting
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+python manage.py test
+
+# Run specific app tests
+python manage.py test users
+python manage.py test policies
+python manage.py test ai
+```
+
+## 📝 API Documentation
+
+### Authentication Headers
+All protected endpoints require JWT authentication:
+```
+Authorization: Bearer <access_token>
+```
+
+### Response Format
+All API responses follow this format:
+```json
+{
+  "message": "Success message",
+  "data": {...},
+  "status": "success"
+}
+```
+
+### Error Handling
+Errors return appropriate HTTP status codes:
+- `400` - Bad Request (validation errors)
+- `401` - Unauthorized (authentication required)
+- `403` - Forbidden (permission denied)
+- `404` - Not Found
+- `500` - Internal Server Error
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -173,10 +281,17 @@ CELERY_BROKER_URL=redis://localhost:6379/0
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License.
 
-## Support
+## 🆘 Support
 
-For support and questions, please contact the development team or create an issue in the repository.
+For support and questions:
+- Check the API documentation
+- Review the Django logs
+- Open an issue on GitHub
+
+---
+
+**Built with ❤️ for better policy understanding**

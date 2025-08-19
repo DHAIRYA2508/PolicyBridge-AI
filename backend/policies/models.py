@@ -1,139 +1,150 @@
+"""
+Policy models for PolicyBridge AI
+"""
+import os
 from django.db import models
-from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.validators import FileExtensionValidator
 from django.utils import timezone
-import uuid
+
+User = get_user_model()
+
+
+def policy_file_path(instance, filename):
+    """
+    Generate file path for policy documents
+    """
+    ext = filename.split('.')[-1]
+    filename = f"policies/{instance.user.id}/{instance.id}.{ext}"
+    return filename
 
 
 class Policy(models.Model):
-    """Policy document model"""
+    """
+    Policy document model
+    """
+    POLICY_TYPES = [
+        ('health', 'Health Insurance'),
+        ('auto', 'Auto Insurance'),
+        ('home', 'Home Insurance'),
+        ('life', 'Life Insurance'),
+        ('business', 'Business Insurance'),
+        ('other', 'Other'),
+    ]
     
-    # Basic information
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='policies')
-    title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='policies')
+    name = models.CharField(max_length=255, verbose_name='Policy Name')
+    provider = models.CharField(max_length=255, verbose_name='Insurance Provider')
+    policy_type = models.CharField(max_length=20, choices=POLICY_TYPES, verbose_name='Policy Type')
+    policy_number = models.CharField(max_length=100, blank=True, verbose_name='Policy Number')
+    coverage_amount = models.DecimalField(
+        max_digits=15, 
+        decimal_places=2, 
+        null=True, 
+        blank=True, 
+        verbose_name='Coverage Amount'
+    )
+    premium_amount = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        null=True, 
+        blank=True, 
+        verbose_name='Premium Amount'
+    )
+    start_date = models.DateField(null=True, blank=True, verbose_name='Policy Start Date')
+    end_date = models.DateField(null=True, blank=True, verbose_name='Policy End Date')
     
-    # File information
-    file = models.FileField(upload_to='policies/')
-    file_name = models.CharField(max_length=255)
-    file_size = models.BigIntegerField()  # Size in bytes
-    file_type = models.CharField(max_length=10)  # pdf, docx, txt
-    
-    # Extracted content
-    extracted_text = models.TextField(blank=True, null=True)
-    text_length = models.IntegerField(default=0)
+    # File fields
+    document = models.FileField(
+        upload_to=policy_file_path,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'docx', 'txt'])],
+        verbose_name='Policy Document'
+    )
+    file_size = models.PositiveIntegerField(verbose_name='File Size (bytes)')
+    file_type = models.CharField(max_length=10, verbose_name='File Type')
     
     # Metadata
-    upload_date = models.DateTimeField(auto_now_add=True)
-    last_modified = models.DateTimeField(auto_now=True)
-    is_processed = models.BooleanField(default=False)
-    
-    # Tags and categories
-    tags = models.JSONField(default=list, blank=True)
-    category = models.CharField(max_length=100, blank=True, null=True)
-    
-    # Status
-    status = models.CharField(max_length=20, choices=[
-        ('uploaded', 'Uploaded'),
-        ('processing', 'Processing'),
-        ('processed', 'Processed'),
-        ('error', 'Error'),
-    ], default='uploaded')
-    
-    # Error handling
-    error_message = models.TextField(blank=True, null=True)
-    
-    def __str__(self):
-        return f"{self.title} - {self.user.email}"
-    
-    def get_file_size_mb(self):
-        """Return file size in MB"""
-        return round(self.file_size / (1024 * 1024), 2)
-    
-    def get_text_preview(self, length=200):
-        """Return a preview of the extracted text"""
-        if self.extracted_text:
-            return self.extracted_text[:length] + "..." if len(self.extracted_text) > length else self.extracted_text
-        return "No text extracted yet."
+    description = models.TextField(blank=True, verbose_name='Description')
+    tags = models.JSONField(default=list, blank=True, verbose_name='Tags')
+    is_active = models.BooleanField(default=True, verbose_name='Active')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Created At')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Updated At')
     
     class Meta:
-        db_table = 'policies'
         verbose_name = 'Policy'
         verbose_name_plural = 'Policies'
-        ordering = ['-upload_date']
-
-
-class PolicySection(models.Model):
-    """Individual sections of a policy document"""
-    
-    policy = models.ForeignKey(Policy, on_delete=models.CASCADE, related_name='sections')
-    section_title = models.CharField(max_length=255)
-    section_content = models.TextField()
-    section_number = models.IntegerField()
-    page_number = models.IntegerField(blank=True, null=True)
-    
-    # AI analysis
-    summary = models.TextField(blank=True, null=True)
-    keywords = models.JSONField(default=list, blank=True)
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"{self.policy.title} - Section {self.section_number}: {self.section_title}"
-    
-    class Meta:
-        db_table = 'policy_sections'
-        verbose_name = 'Policy Section'
-        verbose_name_plural = 'Policy Sections'
-        ordering = ['section_number']
-
-
-class PolicyComparison(models.Model):
-    """Model for storing policy comparisons"""
-    
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comparisons')
-    policies = models.ManyToManyField(Policy, related_name='comparisons')
-    comparison_type = models.CharField(max_length=20, choices=[
-        ('coverage', 'Coverage Comparison'),
-        ('costs', 'Costs Comparison'),
-        ('features', 'Features Comparison'),
-        ('general', 'General Comparison'),
-    ])
-    
-    # AI analysis results
-    similarities = models.JSONField(default=dict, blank=True)
-    differences = models.JSONField(default=dict, blank=True)
-    recommendation = models.TextField(blank=True, null=True)
-    comparison_score = models.FloatField(blank=True, null=True)
-    
-    # Metadata
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    def __str__(self):
-        policy_names = ", ".join([p.title for p in self.policies.all()[:3]])
-        return f"Comparison: {policy_names}"
-    
-    class Meta:
-        db_table = 'policy_comparisons'
-        verbose_name = 'Policy Comparison'
-        verbose_name_plural = 'Policy Comparisons'
+        db_table = 'policies'
         ordering = ['-created_at']
-
-
-class PolicyTag(models.Model):
-    """Tags for categorizing policies"""
-    
-    name = models.CharField(max_length=100, unique=True)
-    description = models.TextField(blank=True, null=True)
-    color = models.CharField(max_length=7, default='#3B82F6')  # Hex color
-    created_at = models.DateTimeField(auto_now_add=True)
+        indexes = [
+            models.Index(fields=['user', 'policy_type']),
+            models.Index(fields=['provider']),
+            models.Index(fields=['created_at']),
+        ]
     
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.provider}"
+    
+    def save(self, *args, **kwargs):
+        """Override save to set file metadata"""
+        if self.document:
+            # Always update file metadata when document changes
+            try:
+                self.file_size = self.document.size
+                self.file_type = self.document.name.split('.')[-1].lower()
+            except Exception as e:
+                # Fallback if file size can't be determined
+                self.file_size = 1024  # Default to 1KB
+                self.file_type = self.document.name.split('.')[-1].lower() if '.' in self.document.name else 'pdf'
+        super().save(*args, **kwargs)
+    
+    def get_file_name(self):
+        """Get the original filename"""
+        return os.path.basename(self.document.name)
+    
+    def get_file_extension(self):
+        """Get the file extension"""
+        return self.file_type.upper()
+    
+    def get_formatted_file_size(self):
+        """Get formatted file size"""
+        if self.file_size < 1024:
+            return f"{self.file_size} B"
+        elif self.file_size < 1024 * 1024:
+            return f"{self.file_size / 1024:.1f} KB"
+        else:
+            return f"{self.file_size / (1024 * 1024):.1f} MB"
+
+
+class PolicyExtraction(models.Model):
+    """
+    Extracted text and metadata from policy documents
+    """
+    policy = models.OneToOneField(Policy, on_delete=models.CASCADE, related_name='extraction')
+    extracted_text = models.TextField(verbose_name='Extracted Text')
+    text_length = models.PositiveIntegerField(verbose_name='Text Length')
+    extraction_date = models.DateTimeField(auto_now_add=True, verbose_name='Extraction Date')
+    extraction_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('completed', 'Completed'),
+            ('failed', 'Failed'),
+        ],
+        default='pending',
+        verbose_name='Extraction Status'
+    )
+    error_message = models.TextField(blank=True, verbose_name='Error Message')
     
     class Meta:
-        db_table = 'policy_tags'
-        verbose_name = 'Policy Tag'
-        verbose_name_plural = 'Policy Tags'
-        ordering = ['name']
+        verbose_name = 'Policy Extraction'
+        verbose_name_plural = 'Policy Extractions'
+        db_table = 'policy_extractions'
+    
+    def __str__(self):
+        return f"Extraction for {self.policy.name}"
+    
+    def save(self, *args, **kwargs):
+        """Override save to set text length"""
+        if self.extracted_text:
+            self.text_length = len(self.extracted_text)
+        super().save(*args, **kwargs)

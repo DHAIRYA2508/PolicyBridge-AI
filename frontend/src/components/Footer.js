@@ -13,7 +13,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-secondary-500 text-white mt-20">
+    <footer className="bg-gradient-to-br from-secondary-600 to-secondary-800 text-white mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand Section */}
@@ -23,11 +23,11 @@ const Footer = () => {
             transition={{ duration: 0.6 }}
             className="col-span-1 md:col-span-2"
           >
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                <span className="text-secondary-500 font-bold text-lg">PB</span>
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent3-500 rounded-xl flex items-center justify-center shadow-glow">
+                <span className="text-white font-bold text-xl">PB</span>
               </div>
-              <span className="text-2xl font-bold">PolicyBridge AI</span>
+              <span className="text-3xl font-bold text-gradient-sunlit">PolicyBridge AI</span>
             </div>
             <p className="text-secondary-100 text-lg leading-relaxed max-w-md">
               Empowering users to understand complex policy documents through AI-powered analysis and intelligent Q&A.
@@ -41,12 +41,12 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="col-span-1"
           >
-            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">About</button></li>
-              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">Features</button></li>
-              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">Pricing</button></li>
-              <li><button className="text-secondary-100 hover:text-white transition-colors duration-200 text-left">Support</button></li>
+            <h3 className="text-lg font-semibold mb-4 text-primary-200">Quick Links</h3>
+            <ul className="space-y-3">
+              <li><button className="text-secondary-100 hover:text-primary-300 transition-all duration-200 text-left hover:translate-x-1">About</button></li>
+              <li><button className="text-secondary-100 hover:text-primary-300 transition-all duration-200 text-left hover:translate-x-1">Features</button></li>
+              <li><button className="text-secondary-100 hover:text-primary-300 transition-all duration-200 text-left hover:translate-x-1">Pricing</button></li>
+              <li><button className="text-secondary-100 hover:text-primary-300 transition-all duration-200 text-left hover:translate-x-1">Support</button></li>
             </ul>
           </motion.div>
 
@@ -57,7 +57,7 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="col-span-1"
           >
-            <h3 className="text-lg font-semibold mb-4">Connect</h3>
+            <h3 className="text-lg font-semibold mb-4 text-primary-200">Connect</h3>
             <div className="flex space-x-4">
               {socialLinks.map((social, index) => {
                 const Icon = social.icon;
@@ -67,7 +67,7 @@ const Footer = () => {
                     href={social.href}
                     whileHover={{ scale: 1.1, y: -2 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-10 h-10 bg-secondary-400 rounded-lg flex items-center justify-center text-white hover:bg-secondary-300 transition-colors duration-200"
+                    className="w-12 h-12 bg-gradient-to-br from-primary-500 to-accent3-500 rounded-xl flex items-center justify-center text-white hover:shadow-glow transition-all duration-300"
                     aria-label={social.label}
                   >
                     <Icon size={20} />
@@ -85,14 +85,14 @@ const Footer = () => {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="border-t border-secondary-400 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center"
         >
-          <p className="text-secondary-100 text-sm">
+          <p className="text-secondary-200 text-sm">
             © {currentYear} PolicyBridge AI. All rights reserved.
           </p>
-          <div className="flex items-center space-x-4 mt-4 md:mt-0">
-            <button className="text-secondary-100 hover:text-white text-sm transition-colors duration-200">
+          <div className="flex items-center space-x-6 mt-4 md:mt-0">
+            <button className="text-secondary-200 hover:text-primary-300 text-sm transition-all duration-200 hover:underline">
               Privacy Policy
             </button>
-            <button className="text-secondary-100 hover:text-white text-sm transition-colors duration-200">
+            <button className="text-secondary-200 hover:text-primary-300 text-sm transition-all duration-200 hover:underline">
               Terms of Service
             </button>
           </div>
@@ -105,13 +105,13 @@ const Footer = () => {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-center mt-8 pt-4"
         >
-          <p className="text-secondary-100 text-sm flex items-center justify-center space-x-2">
+          <p className="text-secondary-200 text-sm flex items-center justify-center space-x-2">
             <span>Made with</span>
             <motion.div
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 1, repeat: Infinity, repeatDelay: 2 }}
             >
-              <Heart size={16} className="text-accent1-400 fill-current" />
+              <Heart size={16} className="text-accent3-400 fill-current" />
             </motion.div>
             <span>for better policy understanding</span>
           </p>

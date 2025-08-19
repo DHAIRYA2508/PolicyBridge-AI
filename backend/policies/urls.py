@@ -1,22 +1,16 @@
+"""
+URL patterns for policies app
+"""
 from django.urls import path
-from .views import (
-    PolicyListView, PolicyDetailView, PolicyComparisonView,
-    policy_chat, policy_statistics
-)
+from . import views
 
 app_name = 'policies'
 
 urlpatterns = [
-    # Policy management
-    path('', PolicyListView.as_view(), name='policy-list'),
-    path('<uuid:pk>/', PolicyDetailView.as_view(), name='policy-detail'),
-    
-    # Policy comparison
-    path('compare/', PolicyComparisonView.as_view(), name='policy-comparison'),
-    
-    # AI chat
-    path('chat/', policy_chat, name='policy-chat'),
-    
-    # Statistics
-    path('statistics/', policy_statistics, name='policy-statistics'),
+    # Policy management endpoints
+    path('policies/', views.PolicyListView.as_view(), name='policy-list'),
+    path('policies/search/', views.PolicySearchView.as_view(), name='policy-search'),
+    path('policies/<int:pk>/', views.PolicyDetailView.as_view(), name='policy-detail'),
+    path('policies/stats/', views.policy_stats_view, name='policy-stats'),
+    path('policies/bulk-delete/', views.bulk_delete_policies, name='policy-bulk-delete'),
 ]

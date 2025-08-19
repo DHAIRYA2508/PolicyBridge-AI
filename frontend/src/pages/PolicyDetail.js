@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import { policyAPI, aiAPI } from '../services/api';
+import toast from 'react-hot-toast';
 import { 
   ArrowLeft, 
   FileText, 
@@ -20,53 +23,112 @@ const PolicyDetail = () => {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Mock policy data
-  const policy = {
-    id,
-    name: 'Employee Health Insurance Policy',
-    type: 'Insurance',
-    status: 'active',
-    uploadDate: '2024-01-15',
-    lastModified: '2024-01-20',
-    size: '2.4 MB',
-    pages: 24,
-    conversations: 8,
-    fileType: 'PDF',
-    description: 'Comprehensive health insurance coverage for employees including medical, dental, and vision benefits.',
-    tags: ['Health', 'Insurance', 'Employee Benefits', 'Medical'],
-    metadata: {
-      author: 'HR Department',
-      department: 'Human Resources',
-      version: '2.1',
-      effectiveDate: '2024-01-01',
-      expiryDate: '2024-12-31',
-      coverage: 'Full-time employees and dependents',
-      deductible: '$500 individual, $1000 family',
-      maxOutOfPocket: '$3000 individual, $6000 family'
-    },
-    recentActivity: [
-      {
-        id: 1,
-        type: 'chat',
-        description: 'New conversation started',
-        timestamp: '2 hours ago',
-        user: 'John Doe'
-      },
-      {
-        id: 2,
-        type: 'download',
-        description: 'Policy downloaded',
-        timestamp: '1 day ago',
-        user: 'Jane Smith'
-      },
-      {
-        id: 3,
-        type: 'upload',
-        description: 'Policy updated',
-        timestamp: '5 days ago',
-        user: 'HR Admin'
+  // Real policy data - will be fetched from backend
+  const [policy, setPolicy] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch policy data
+  useEffect(() => {
+    const fetchPolicyData = async () => {
+      try {
+        setLoading(true);
+        // Fetch policy data from backend
+        try {
+          const response = await policyAPI.getPolicy(id);
+          const policyData = response.data;
+          
+          // Extract real policy details from the document using AI
+          try {
+            const extractedDetails = await aiAPI.extractPolicyDetails(policyData.id);
+            console.log('Extracted details:', extractedDetails.data);
+            
+            setPolicy({
+              ...policyData,
+              ...extractedDetails.data
+            });
+          } catch (extractError) {
+            console.error('Error extracting policy details:', extractError);
+            // Use policy data without extraction
+            setPolicy(policyData);
+          }
+        } catch (error) {
+          console.error('Error fetching policy:', error);
+          // Set fallback data if API fails
+          setPolicy({
+            id,
+            name: 'Policy Document',
+            type: 'Document',
+            status: 'active',
+            uploadDate: new Date().toISOString().split('T')[0],
+            lastModified: new Date().toISOString().split('T')[0],
+            size: '0 MB',
+            pages: 0,
+            conversations: 0,
+            fileType: 'PDF',
+            description: 'Policy document uploaded by user.',
+            tags: [],
+            metadata: {
+              effectiveDate: 'N/A',
+              expiryDate: 'N/A',
+              department: 'N/A',
+              coverage: 'N/A',
+              deductible: 'N/A',
+              maxOutOfPocket: 'N/A'
+            },
+            recentActivity: []
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching policy data:', error);
+      } finally {
+        setLoading(false);
       }
-    ]
+    };
+
+    if (id) {
+      fetchPolicyData();
+    }
+  }, [id]);
+
+  // Function to extract policy details using AI
+  const extractPolicyDetails = async (policyData) => {
+    try {
+      // Call AI service to extract policy details
+      const extractionResponse = await aiAPI.extractPolicyDetails(policyData.id);
+      
+      if (extractionResponse.data) {
+        return {
+          description: extractionResponse.data.summary || 'Policy document uploaded by user.',
+          metadata: {
+            effectiveDate: extractionResponse.data.effectiveDate || 'N/A',
+            expiryDate: extractionResponse.data.expiryDate || 'N/A',
+            department: extractionResponse.data.department || 'N/A',
+            coverage: extractionResponse.data.coverage || 'N/A',
+            deductible: extractionResponse.data.deductible || 'N/A',
+            maxOutOfPocket: extractionResponse.data.maxOutOfPocket || 'N/A'
+          },
+          tags: extractionResponse.data.tags || [],
+          recentActivity: extractionResponse.data.recentActivity || []
+        };
+      }
+    } catch (error) {
+      console.error('Error extracting policy details:', error);
+    }
+    
+    // Return default values if extraction fails
+    return {
+      description: 'Policy document uploaded by user.',
+      metadata: {
+        effectiveDate: 'N/A',
+        expiryDate: 'N/A',
+        department: 'N/A',
+        coverage: 'N/A',
+        deductible: 'N/A',
+        maxOutOfPocket: 'N/A'
+      },
+      tags: [],
+      recentActivity: []
+    };
   };
 
   const quickActions = [
@@ -88,7 +150,16 @@ const PolicyDetail = () => {
       icon: Download,
       title: 'Download',
       description: 'Download policy document',
-      action: () => console.log('Download'),
+      action: () => {
+        if (policy?.document) {
+          const link = document.createElement('a');
+          link.href = policy.document;
+          link.download = policy.name || 'policy-document';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      },
       color: 'from-secondary-500 to-secondary-600'
     },
     {
@@ -132,8 +203,52 @@ const PolicyDetail = () => {
     navigate('/dashboard');
   };
 
+  // Add safe access functions to prevent undefined errors
+  const getMetadataValue = (key, fallback = 'N/A') => {
+    return policy?.metadata?.[key] || fallback;
+  };
+
+  const getPolicyValue = (key, fallback = 'N/A') => {
+    return policy?.[key] || fallback;
+  };
+
+  const getArrayValue = (key, fallback = []) => {
+    return policy?.[key] || fallback;
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#EDE8F5] via-[#D8D0E8] to-[#ADBBDDA] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#3D52A0] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-[#8697C4]">Loading policy details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!policy) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#EDE8F5] via-[#D8D0E8] to-[#ADBBDDA] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileText size={24} className="text-red-500" />
+          </div>
+          <h2 className="text-xl font-semibold text-[#3D52A0] mb-2">Policy Not Found</h2>
+          <p className="text-[#8697C4] mb-4">The policy you're looking for doesn't exist or you don't have access to it.</p>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn-primary"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-primary-50 py-8">
+    <div className="min-h-screen bg-[#EDE8F5] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -157,23 +272,23 @@ const PolicyDetail = () => {
                   <FileText size={32} className="text-white" />
                 </div>
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-text-primary mb-2">
-                    {policy.name}
-                  </h1>
-                  <p className="text-lg text-text-secondary mb-4">
-                    {policy.description}
-                  </p>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(policy.status)}`}>
-                      {policy.status}
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getFileTypeColor(policy.fileType)}`}>
-                      {policy.fileType}
-                    </span>
-                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
-                      {policy.type}
-                    </span>
-                  </div>
+                                     <h1 className="text-3xl font-bold text-text-primary mb-2">
+                     {getPolicyValue('name', 'Policy Document')}
+                   </h1>
+                   <p className="text-lg text-text-secondary mb-4">
+                     {getPolicyValue('description', 'Policy document uploaded by user.')}
+                   </p>
+                   <div className="flex flex-wrap items-center gap-3">
+                     <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(getPolicyValue('status', 'active'))}`}>
+                       {getPolicyValue('status', 'active')}
+                     </span>
+                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getFileTypeColor(getPolicyValue('fileType', 'PDF'))}`}>
+                       {getPolicyValue('fileType', 'PDF')}
+                     </span>
+                     <span className="px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
+                       {getPolicyValue('type', 'Document')}
+                     </span>
+                   </div>
                 </div>
               </div>
             </div>
@@ -251,41 +366,32 @@ const PolicyDetail = () => {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <Calendar size={20} className="text-text-muted" />
-                    <div>
-                      <p className="text-sm text-text-secondary">Effective Date</p>
-                      <p className="font-medium text-text-primary">{policy.metadata.effectiveDate}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Clock size={20} className="text-text-muted" />
-                    <div>
-                      <p className="text-sm text-text-secondary">Expiry Date</p>
-                      <p className="font-medium text-text-primary">{policy.metadata.expiryDate}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <User size={20} className="text-text-muted" />
-                    <div>
-                      <p className="text-sm text-text-secondary">Author</p>
-                      <p className="font-medium text-text-primary">{policy.metadata.author}</p>
-                    </div>
-                  </div>
+                                     <div className="flex items-center space-x-3">
+                     <Calendar size={20} className="text-text-muted" />
+                     <div>
+                       <p className="text-sm text-text-secondary">Effective Date</p>
+                       <p className="font-medium text-text-primary">{getMetadataValue('effectiveDate')}</p>
+                     </div>
+                   </div>
+                   <div className="flex items-center space-x-3">
+                     <Clock size={20} className="text-text-muted" />
+                     <div>
+                       <p className="text-sm text-text-secondary">Expiry Date</p>
+                       <p className="font-medium text-text-primary">{getMetadataValue('expiryDate')}</p>
+                     </div>
+                   </div>
+
                 </div>
                 <div className="space-y-4">
-                  <div>
-                    <p className="text-sm text-text-secondary mb-1">Department</p>
-                    <p className="font-medium text-text-primary">{policy.metadata.department}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-secondary mb-1">Version</p>
-                    <p className="font-medium text-text-primary">{policy.metadata.version}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-text-secondary mb-1">Coverage</p>
-                    <p className="font-medium text-text-primary">{policy.metadata.coverage}</p>
-                  </div>
+                                     <div>
+                     <p className="text-sm text-text-secondary mb-1">Department</p>
+                     <p className="font-medium text-text-primary">{getMetadataValue('department')}</p>
+                   </div>
+
+                   <div>
+                     <p className="text-sm text-text-secondary mb-1">Coverage</p>
+                     <p className="font-medium text-text-primary">{getMetadataValue('coverage')}</p>
+                   </div>
                 </div>
               </div>
             </motion.div>
@@ -301,18 +407,30 @@ const PolicyDetail = () => {
                 Coverage Summary
               </h3>
               <div className="space-y-4">
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-text-secondary">Deductible</span>
-                  <span className="font-medium text-text-primary">{policy.metadata.deductible}</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-gray-100">
-                  <span className="text-text-secondary">Max Out of Pocket</span>
-                  <span className="font-medium text-text-primary">{policy.metadata.maxOutOfPocket}</span>
-                </div>
-                <div className="flex justify-between items-center py-3">
-                  <span className="text-text-secondary">File Size</span>
-                  <span className="font-medium text-text-primary">{policy.size}</span>
-                </div>
+                                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                   <span className="text-text-secondary">Deductible</span>
+                   <span className="font-medium text-text-primary">{getMetadataValue('deductible')}</span>
+                 </div>
+                 <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                   <span className="text-text-secondary">Max Out of Pocket</span>
+                   <span className="font-medium text-text-primary">{getMetadataValue('maxOutOfPocket')}</span>
+                 </div>
+                 <div className="flex justify-between items-center py-3">
+                   <span className="text-text-secondary">File Size</span>
+                   <span className="font-medium text-text-primary">
+                     {(() => {
+                       const fileSize = getPolicyValue('file_size', 0);
+                       if (fileSize > 0) {
+                         if (fileSize < 1024) return `${fileSize} B`;
+                         if (fileSize < 1024 * 1024) return `${(fileSize / 1024).toFixed(1)} KB`;
+                         return `${(fileSize / (1024 * 1024)).toFixed(1)} MB`;
+                       }
+                       // Show file type if size is not available
+                       const fileType = getPolicyValue('file_type', 'PDF');
+                       return fileType ? `${fileType.toUpperCase()}` : 'PDF';
+                     })()}
+                   </span>
+                 </div>
               </div>
             </motion.div>
           </div>
@@ -330,22 +448,34 @@ const PolicyDetail = () => {
                 File Information
               </h3>
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary">Pages</span>
-                  <span className="font-medium text-text-primary">{policy.pages}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary">Size</span>
-                  <span className="font-medium text-text-primary">{policy.size}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary">Type</span>
-                  <span className="font-medium text-text-primary">{policy.fileType}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-text-secondary">Conversations</span>
-                  <span className="font-medium text-text-primary">{policy.conversations}</span>
-                </div>
+                                 <div className="flex justify-between items-center">
+                   <span className="text-text-secondary">Pages</span>
+                   <span className="font-medium text-text-primary">{getPolicyValue('pages', 0)}</span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                   <span className="text-text-secondary">Size</span>
+                   <span className="font-medium text-text-primary">
+                     {(() => {
+                       const fileSize = getPolicyValue('file_size', 0);
+                       if (fileSize > 0) {
+                         if (fileSize < 1024) return `${fileSize} B`;
+                         if (fileSize < 1024 * 1024) return `${(fileSize / 1024).toFixed(1)} KB`;
+                         return `${(fileSize / (1024 * 1024)).toFixed(1)} MB`;
+                       }
+                       // Show file type if size is not available
+                       const fileType = getPolicyValue('file_type', 'PDF');
+                       return fileType ? `${fileType.toUpperCase()}` : 'PDF';
+                     })()}
+                   </span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                   <span className="text-text-secondary">Type</span>
+                   <span className="font-medium text-text-primary">{getPolicyValue('fileType', 'PDF')}</span>
+                 </div>
+                 <div className="flex justify-between items-center">
+                   <span className="text-text-secondary">Conversations</span>
+                   <span className="font-medium text-text-primary">{getPolicyValue('conversations', 0)}</span>
+                 </div>
               </div>
             </motion.div>
 
@@ -359,25 +489,25 @@ const PolicyDetail = () => {
               <h3 className="text-lg font-semibold text-text-primary mb-4">
                 Recent Activity
               </h3>
-              <div className="space-y-4">
-                {policy.recentActivity.map((activity, index) => (
-                  <motion.div
-                    key={activity.id}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
-                    className="flex items-start space-x-3"
-                  >
-                    <div className="w-2 h-2 bg-secondary-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <div className="flex-1">
-                      <p className="text-sm text-text-primary">{activity.description}</p>
-                      <p className="text-xs text-text-secondary">
-                        {activity.timestamp} by {activity.user}
-                      </p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                             <div className="space-y-4">
+                 {getArrayValue('recentActivity', []).map((activity, index) => (
+                   <motion.div
+                     key={activity?.id || index}
+                     initial={{ opacity: 0, x: 20 }}
+                     animate={{ opacity: 1, x: 0 }}
+                     transition={{ duration: 0.4, delay: 0.6 + index * 0.1 }}
+                     className="flex items-start space-x-3"
+                   >
+                     <div className="w-2 h-2 bg-secondary-500 rounded-full mt-2 flex-shrink-0"></div>
+                     <div className="flex-1">
+                       <p className="text-sm text-text-primary">{activity?.description || 'Activity'}</p>
+                       <p className="text-xs text-text-secondary">
+                         {activity?.timestamp || 'Recent'} by {activity?.user || 'User'}
+                       </p>
+                     </div>
+                   </motion.div>
+                 ))}
+               </div>
             </motion.div>
 
             {/* Tags */}
@@ -390,19 +520,19 @@ const PolicyDetail = () => {
               <h3 className="text-lg font-semibold text-text-primary mb-4">
                 Tags
               </h3>
-              <div className="flex flex-wrap gap-2">
-                {policy.tags.map((tag, index) => (
-                  <motion.span
-                    key={tag}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
-                    className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
-                  >
-                    {tag}
-                  </motion.span>
-                ))}
-              </div>
+                             <div className="flex flex-wrap gap-2">
+                 {getArrayValue('tags', []).map((tag, index) => (
+                   <motion.span
+                     key={tag || index}
+                     initial={{ opacity: 0, scale: 0.8 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     transition={{ duration: 0.3, delay: 0.8 + index * 0.1 }}
+                     className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm"
+                   >
+                     {tag || 'Tag'}
+                   </motion.span>
+                 ))}
+               </div>
             </motion.div>
           </div>
         </div>
@@ -426,9 +556,9 @@ const PolicyDetail = () => {
               <h3 className="text-lg font-semibold text-text-primary mb-4">
                 Delete Policy
               </h3>
-              <p className="text-text-secondary mb-6">
-                Are you sure you want to delete "{policy.name}"? This action cannot be undone.
-              </p>
+                             <p className="text-text-secondary mb-6">
+                 Are you sure you want to delete "{getPolicyValue('name', 'this policy')}"? This action cannot be undone.
+               </p>
               <div className="flex space-x-3">
                 <button
                   onClick={() => setShowDeleteModal(false)}

@@ -16,6 +16,7 @@ import PolicyDetail from './pages/PolicyDetail';
 import ChatView from './pages/ChatView';
 import ComparePolicies from './pages/ComparePolicies';
 import ConversationHistory from './pages/ConversationHistory';
+import TestAuth from './pages/TestAuth';
 
 // Context
 import { AuthProvider } from './context/AuthContext';
@@ -37,8 +38,10 @@ function App() {
                 <Route path="/upload" element={<UploadPolicy />} />
                 <Route path="/policy/:id" element={<PolicyDetail />} />
                 <Route path="/chat/:policyId" element={<ChatView />} />
+                <Route path="/chat" element={<ChatView />} />
                 <Route path="/compare" element={<ComparePolicies />} />
                 <Route path="/history" element={<ConversationHistory />} />
+                <Route path="/test-auth" element={<TestAuth />} />
               </Routes>
             </AnimatePresence>
             <Footer />

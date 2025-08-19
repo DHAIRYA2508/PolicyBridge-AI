@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   MessageSquare, 
@@ -23,87 +23,30 @@ const ConversationHistory = () => {
   const [filterType, setFilterType] = useState('all');
   const [sortBy, setSortBy] = useState('recent');
 
-  // Mock conversation data
-  const conversations = [
-    {
-      id: '1',
-      policyId: '1',
-      policyName: 'Employee Health Insurance Policy',
-      policyType: 'Insurance',
-      lastMessage: 'What are the coverage limits for dental procedures?',
-      lastResponse: 'Based on your policy, dental procedures have the following coverage limits...',
-      timestamp: new Date(Date.now() - 1800000), // 30 minutes ago
-      messageCount: 8,
-      status: 'active',
-      tags: ['coverage', 'dental', 'benefits'],
-      participants: ['John Doe', 'AI Assistant']
-    },
-    {
-      id: '2',
-      policyId: '2',
-      policyName: 'Company Data Privacy Policy',
-      policyType: 'Privacy',
-      lastMessage: 'How do we handle GDPR compliance?',
-      lastResponse: 'Your privacy policy includes comprehensive GDPR compliance measures...',
-      timestamp: new Date(Date.now() - 3600000), // 1 hour ago
-      messageCount: 12,
-      status: 'active',
-      tags: ['GDPR', 'compliance', 'privacy'],
-      participants: ['Jane Smith', 'AI Assistant']
-    },
-    {
-      id: '3',
-      policyId: '3',
-      policyName: 'Remote Work Guidelines',
-      policyType: 'HR',
-      lastMessage: 'What equipment is provided for remote work?',
-      lastResponse: 'According to your remote work policy, the company provides...',
-      timestamp: new Date(Date.now() - 7200000), // 2 hours ago
-      messageCount: 5,
-      status: 'active',
-      tags: ['equipment', 'remote work', 'HR'],
-      participants: ['Mike Johnson', 'AI Assistant']
-    },
-    {
-      id: '4',
-      policyId: '1',
-      policyName: 'Employee Health Insurance Policy',
-      policyType: 'Insurance',
-      lastMessage: 'What is the waiting period for pre-existing conditions?',
-      lastResponse: 'The waiting period for pre-existing conditions is typically...',
-      timestamp: new Date(Date.now() - 86400000), // 1 day ago
-      messageCount: 6,
-      status: 'archived',
-      tags: ['pre-existing', 'waiting period', 'coverage'],
-      participants: ['Sarah Wilson', 'AI Assistant']
-    },
-    {
-      id: '5',
-      policyId: '4',
-      policyName: 'Financial Compliance Manual',
-      policyType: 'Finance',
-      lastMessage: 'How do we report suspicious transactions?',
-      lastResponse: 'Your compliance manual outlines the following steps for reporting...',
-      timestamp: new Date(Date.now() - 172800000), // 2 days ago
-      messageCount: 15,
-      status: 'archived',
-      tags: ['compliance', 'reporting', 'finance'],
-      participants: ['David Brown', 'AI Assistant']
-    },
-    {
-      id: '6',
-      policyId: '5',
-      policyName: 'IT Security Policy',
-      policyType: 'Security',
-      lastMessage: 'What are the password requirements?',
-      lastResponse: 'Your IT security policy specifies the following password requirements...',
-      timestamp: new Date(Date.now() - 259200000), // 3 days ago
-      messageCount: 9,
-      status: 'archived',
-      tags: ['security', 'passwords', 'IT'],
-      participants: ['Lisa Chen', 'AI Assistant']
-    }
-  ];
+  // Real conversation data - will be fetched from backend
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch conversations
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        setLoading(true);
+        // TODO: Fetch conversations from backend
+        // const response = await aiAPI.getConversations();
+        // setConversations(response.data);
+        
+        // For now, set empty state
+        setConversations([]);
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConversations();
+  }, []);
 
   const filteredConversations = conversations.filter(conversation => {
     const matchesSearch = 
@@ -183,6 +126,37 @@ const ConversationHistory = () => {
     // Handle delete logic here
     console.log('Delete conversation:', conversationId);
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent1-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-secondary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-text-secondary">Loading conversations...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (conversations.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent1-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <MessageSquare size={24} className="text-blue-500" />
+          </div>
+          <h2 className="text-xl font-semibold text-text-primary mb-2">No Conversations Yet</h2>
+          <p className="text-text-secondary mb-6">Start chatting with AI about your policies to see conversation history here.</p>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn-primary"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-primary-50 py-8">
